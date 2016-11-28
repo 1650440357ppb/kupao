@@ -35,7 +35,7 @@ function finder(canvas,cobj,finder) {
     this.cobj=cobj;
     this.finder=finder;
     this.x=this.canvas.width-20;
-    this.y=460;
+    this.y=490;
     this.width=70;
     this.height=70;
     this.state=0 ;
