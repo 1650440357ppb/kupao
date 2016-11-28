@@ -149,10 +149,24 @@ function game(canvas,cobj,run,jump,finder,zhi,lif,jifen,runa,hita,zidana,jumpa) 
     this.zidan=new zidan(canvas,cobj,zhi);
     this.num=0;
     this.rand=(4+Math.ceil(6*Math.random()))*1000;
+    this.isrun=false;
  // 速度加快
     this.current=0;
     this.step=1;
     this.stepsteep=2;
+    // move
+    this.ts={};
+    this.num=0;
+    this.num1=0;
+    this.top=0;
+    this.num2=0;
+    //move2
+    this.flag=true;
+    this.init=0;
+    this.speeda=5;
+    this.r=100;
+    this.y1=this.person.y;
+
 }
 game.prototype= {
     play:function (strat,zhezhao) {
@@ -165,18 +179,20 @@ game.prototype= {
     run:function () {
         var that=this;
         that.name=prompt("请输入姓名","perte")
-        setInterval(function () {
-         that.move()
+        that.ts.t1=setInterval(function () {
+        that.move()
         },50)
     },
     move:function () {
         var that=this
         that.runa.play();
-        that.num+=50;
+        that.num++;
+        that.num1+=6;
+        that.num2+=50;
         that.cobj.clearRect(0,0,that.width,that.height);
-        that.person.num++;
+        // that.person.num1++;
         if(that.person.status=="run"){
-            that.person.state=that.person.num%8;
+            that.person.state=that.num%8;
         }else{
             that.person.state=0;
         }
@@ -187,10 +203,9 @@ game.prototype= {
         }
         that.person.draw();
         //操作障碍物
-        if( that.num%  that.rand==0){
-            that.rand=(4+Math.ceil(6*Math.random()))*1000;
+        if( that.num2%that.rand==0){
+            that.num2=0;
             // 障碍物出现的时间
-            that.num=0;
             var obj=new finder(that.canvas,that.cobj,that.finder);
             obj.state=Math.floor(Math.random()*that.finder.length);
             that.finderarr.push(obj);
@@ -203,7 +218,7 @@ game.prototype= {
                 if(!that.finderarr[i].flag){
                     xue(that.canvas,that.cobj,that.person);
                     that.person.life--;
-                    that.hita.play();
+                    // that.hita.play();
                     // 碰撞声音
                     that.lif.style.width=100-(that.person.life)*33+"%";
                     if(that.person.life==0){
@@ -228,7 +243,8 @@ game.prototype= {
                         }
 
                         localStorage.messages=JSON.stringify(messages);
-                        location.reload();
+                        // location.reload();
+                        that.over();
                     }
                     that.finderarr[i].flag=true;
                 }
@@ -253,7 +269,7 @@ game.prototype= {
                         that.step+=that.stepsteep;
                     }
                     that.jifen.innerHTML=that.score;
-                    that.finderarr[i].flag=true;
+                    // that.finderarr[i].flag=true;
                 }
             }
         }
@@ -271,36 +287,62 @@ game.prototype= {
     },
     key:function () {
         var that=this;
-        var flag=true;
+        // var flag=true;
         document.onkeydown=function (e) {
-          if(!flag){
-              return;
-          }
-            flag=false;
-            if(e.keyCode==32){
+       if(e.keyCode==38){
+           if(!that.isrun){
+               for(var i in that.ts){
+                   clearInterval(that.ts[i]);
+                   that.runa.pause();
+               }
+               that.isrun=true;
+           }else if(that.isrun){
+               that.ts.t1=setInterval(function(){
+                   that.move();
+               },50);
+               if(!that.flag){
+                   clearInterval(that.ts.t2);
+                   that.ts.t2=setInterval(function(){
+                       that.move2();
+                   },50); 
+               }
+               that.isrun=false;
+           }
+       }else if(e.keyCode==32){
+                if(!that.flag){
+                    return;
+                }
+                that.flag=false;
                 that.runa.pause();
                 that.jumpa.play();
+                that.person.status="jump";
                 // 角度
-                var init=0;
-                var speeda=5;
-                var r=100;
-                var y=that.person.y;
-                var t=setInterval(function () {
-                    that.person.status="jump";
-                    init+=speeda;
-                    if(init>180){
-                        clearInterval(t);
-                        that.runa.play();
-                        that.person.status="run";
-                        that.person.y=y;
-                        flag=true
-                    }else{
-                        var top=Math.sin(init*Math.PI/180)*r;
-                        that.person.y=y-top;
-                    }
+                // var init=0;
+                // var speeda=5;
+                // var r=100;
+                // var y=that.person.y;
+                that.ts.t2=setInterval(function () {    
+                    that.move2();
+                    
                 },50)
             }
         }
+    },
+    move2:function () {
+        var that=this;
+            // that.person.status="jump";
+            that.init+=that.speeda;
+        var top=Math.sin(that.init*Math.PI/180)*that.r;
+            if(that.init>180){
+                clearInterval(that.ts.t2);
+                that.runa.play();
+                that.person.status="run";
+                that.person.y=that.y1;
+                that.flag=true
+                that.init=0;
+            }else{
+                that.person.y=that.y1-top;
+            }
     },
     mouse:function () {
         var that=this;
@@ -311,6 +353,45 @@ game.prototype= {
             that.zidan.y=that.person.y+that.person.height/3;
             that.zidan.speedx=10;
             that.isfire=true;
+        }
+    },
+    over:function(){
+        for(var i in this.ts){
+            clearInterval(this.ts[i]);  //关闭所有的计时器
+        }
+        var over=document.querySelector(".over");
+        over.style.animation="strat 2s ease forwards";
+        this.runa.pause();
+        //记录分数
+        var scoreEle=document.querySelector(".scoreEle");
+        scoreEle.innerHTML=this.score;
+        var lis=document.querySelector(".over ul");
+        var messages=localStorage.messages?JSON.parse(localStorage.messages):[];
+        var str="";
+        for (var i = 0; i < messages.length; i++) {
+            str+="<li>"+messages[i].name+"："+messages[i].score;
+        }
+        lis.innerHTML=str;
+        this.again();
+    },
+    again:function(){
+        var that=this;
+        var btn1=document.querySelector(".again");
+        btn1.onclick=function(){
+            var over=document.querySelector(".over");
+            over.style.animation="strat1 2s ease forwards";
+            that.person.x=0;
+            that.person.y=480;
+            that.score=0;
+            that.person.life=3;
+            that.finderarr=[];;
+            that.inita=0;
+            that.y1=that.person.y;
+            that.jifen.innerHTML=that.score;
+            that.lif.style.width=100+"%";
+            // that.lif.style.background="green";
+            that.play();
+            btn1.onclick=null;
         }
     }
 }
