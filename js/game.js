@@ -4,7 +4,7 @@ function person(canvas,cobj,run,jump) {
     this.run=run;
     this.jump=jump;
     this.x=0;
-    this.y=450;
+    this.y=480;
     this.width=110;
     this.height=110;
     this.speedx=6;
@@ -35,7 +35,7 @@ function finder(canvas,cobj,finder) {
     this.cobj=cobj;
     this.finder=finder;
     this.x=this.canvas.width-20;
-    this.y=490;
+    this.y=520;
     this.width=70;
     this.height=70;
     this.state=0 ;
