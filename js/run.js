@@ -19,7 +19,7 @@ window.onload=function () {
     // 开始按钮
     var strat=$(".start");
     var zhezhao=$(".zhezhao");
-    var stratbtn=$(".btn");
+    var stratbtn=$(".btnst");
     stratbtn.one("click",function () {
         gameobj.play(strat,zhezhao);
     })

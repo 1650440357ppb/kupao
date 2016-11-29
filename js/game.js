@@ -177,8 +177,8 @@ game.prototype= {
         this.mouse();
     },
     run:function () {
+        this.name=prompt("请输入姓名","perte")
         var that=this;
-        that.name=prompt("请输入姓名","perte")
         that.ts.t1=setInterval(function () {
         that.move()
         },50)
@@ -346,7 +346,6 @@ game.prototype= {
     },
     mouse:function () {
         var that=this;
-
         document.querySelector(".zhezhao").onclick=function () {
             that.zidana.play();
             that.zidan.x=that.person.x+that.person.y/2;
@@ -385,12 +384,12 @@ game.prototype= {
             that.score=0;
             that.person.life=3;
             that.finderarr=[];;
-            that.inita=0;
+            that.init=0;
             that.y1=that.person.y;
             that.jifen.innerHTML=that.score;
-            that.lif.style.width=100+"%";
+            that.lif.style.width=0;
             // that.lif.style.background="green";
-            that.play();
+            that.run();
             btn1.onclick=null;
         }
     }
